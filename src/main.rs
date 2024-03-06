@@ -1,11 +1,6 @@
 use std::collections::HashMap;
 
-use axum::{
-    extract::{Query, RawQuery},
-    http::StatusCode,
-    routing::get,
-    Json, Router,
-};
+use axum::{extract::RawQuery, http::StatusCode, routing::get, Json, Router};
 
 use serde::Serialize;
 use tokio::main;
@@ -39,15 +34,22 @@ struct UserParam {
 fn parse_query(param: &str) -> HashMap<&str, Vec<&str>> {
     let mut url_value = HashMap::new();
     for pair in param.split('&') {
-        let parts: Vec<&str> = pair.split('=').collect();
-        if parts.len() == 2 {
-            let key = parts[0];
-            let value = parts[1];
+        if let Some((key, value)) = pair.split_once("=") {
             url_value
                 .entry(key)
-                .and_modify(|v: &mut Vec<&str>| v.push(value))
-                .or_insert_with(|| vec![value]);
+                .or_insert_with(|| Vec::new())
+                .push(value);
         }
+        // Unoptimize
+        // let parts: Vec<&str> = pair.split('=').collect();
+        // if parts.len() == 2 {
+        //     let key = parts[0];
+        //     let value = parts[1];
+        //     url_value
+        //         .entry(key)
+        //         .and_modify(|v: &mut Vec<&str>| v.push(value))
+        //         .or_insert_with(|| vec![value]);
+        // }
     }
     url_value
 }
