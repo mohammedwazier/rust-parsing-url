@@ -12,23 +12,21 @@ use tokio::main;
 
 #[main]
 async fn main() {
+    let port: i32 = 3000;
     let app = Router::new()
         .route("/", get(hello_world))
-        .route("/query", get(get_query))
         .route("/testing", get(handler));
 
     println!("Running on localhost:3000");
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let server_endpoint = format!("0.0.0.0:{}", port).to_string();
+    let listener = tokio::net::TcpListener::bind(server_endpoint)
+        .await
+        .unwrap();
     axum::serve(listener, app).await.unwrap()
 }
 
 async fn hello_world() -> &'static str {
     "Hello World!"
-}
-
-async fn get_query(params: Query<HashMap<String, String>>) -> Result<(), ()> {
-    dbg!(params);
-    Ok(())
 }
 
 #[derive(Debug, Serialize)]
@@ -37,9 +35,9 @@ struct UserParam {
     user_id: Vec<String>,
 }
 
+// Dynamic Parsing Query Params.
 fn parse_query(param: &str) -> HashMap<&str, Vec<&str>> {
     let mut url_value = HashMap::new();
-
     for pair in param.split('&') {
         let parts: Vec<&str> = pair.split('=').collect();
         if parts.len() == 2 {
