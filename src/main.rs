@@ -37,12 +37,6 @@ struct UserParam {
     user_id: Vec<String>,
 }
 
-// impl IntoResponse for UserParam {
-//     fn into_response(self) -> Box<> {
-
-//     }
-// }
-
 fn parse_query(param: &str) -> HashMap<&str, Vec<&str>> {
     let mut url_value = HashMap::new();
 
