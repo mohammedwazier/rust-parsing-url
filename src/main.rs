@@ -2,10 +2,12 @@ use std::collections::HashMap;
 
 use axum::{
     extract::{Query, RawQuery},
+    http::StatusCode,
     routing::get,
-    Router,
+    Json, Router,
 };
 
+use serde::Serialize;
 use tokio::main;
 
 #[main]
@@ -29,9 +31,17 @@ async fn get_query(params: Query<HashMap<String, String>>) -> Result<(), ()> {
     Ok(())
 }
 
+#[derive(Debug, Serialize)]
 struct UserParam {
+    #[serde(rename = "userId")]
     user_id: Vec<String>,
 }
+
+// impl IntoResponse for UserParam {
+//     fn into_response(self) -> Box<> {
+
+//     }
+// }
 
 fn parse_query(param: &str) -> HashMap<&str, Vec<&str>> {
     let mut url_value = HashMap::new();
@@ -50,7 +60,7 @@ fn parse_query(param: &str) -> HashMap<&str, Vec<&str>> {
     url_value
 }
 
-async fn handler(param: RawQuery) -> String {
+async fn handler(param: RawQuery) -> (StatusCode, Json<UserParam>) {
     // localhost:3000/testing?user_id=bbbbb&user_id=asdasdasd&user_id=aaaa
     let par = param.0.unwrap_or_default();
     let result = parse_query(&par);
@@ -63,8 +73,8 @@ async fn handler(param: RawQuery) -> String {
         // Appending to user_data with Extend func
         user_data
             .user_id
-            .extend(user_ids.iter().map(|&s| s.to_string()))
+            .extend(user_ids.iter().map(|&s| s.to_string()));
+        return (StatusCode::OK, Json(user_data));
     }
-    dbg!(user_data.user_id);
-    "asdadasd".to_string()
+    (StatusCode::BAD_REQUEST, Json(user_data))
 }
