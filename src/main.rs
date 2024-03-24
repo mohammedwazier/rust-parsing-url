@@ -40,22 +40,11 @@ fn parse_query(param: &str) -> HashMap<&str, Vec<&str>> {
                 .or_insert_with(|| Vec::new())
                 .push(value);
         }
-        // Unoptimize
-        // let parts: Vec<&str> = pair.split('=').collect();
-        // if parts.len() == 2 {
-        //     let key = parts[0];
-        //     let value = parts[1];
-        //     url_value
-        //         .entry(key)
-        //         .and_modify(|v: &mut Vec<&str>| v.push(value))
-        //         .or_insert_with(|| vec![value]);
-        // }
     }
     url_value
 }
 
 async fn handler(param: RawQuery) -> (StatusCode, Json<UserParam>) {
-    // localhost:3000/testing?user_id=bbbbb&user_id=asdasdasd&user_id=aaaa
     let par = param.0.unwrap_or_default();
     let result = parse_query(&par);
 
